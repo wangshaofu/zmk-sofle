@@ -48,7 +48,7 @@ layers:
   - B
   - $$mdi:arrow-right-bold$$
   - N
-  - M
+  - N
   - {t: ',', s: <}
   - {t: ., s: '>'}
   - {t: /, s: '?'}
