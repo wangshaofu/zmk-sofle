@@ -8,7 +8,6 @@
 #include <dt-bindings/zmk/rgb.h>
 
 /*
-
    &mmv_input_listener {
        input-processors = <&zip_xy_scaler 2 1>;
    };
@@ -16,38 +15,46 @@
    &msc_input_listener {
        input-processors = <&zip_xy_scaler 2 1>;
    };
+*/
 
- */
-
-#define ZMK_MOUSE_DEFAULT_MOVE_VAL 1200  // 600
-#define ZMK_MOUSE_DEFAULT_SCRL_VAL 140    // 10
+#define ZMK_MOUSE_DEFAULT_MOVE_VAL 1200  // pointer move speed
+#define ZMK_MOUSE_DEFAULT_SCRL_VAL 140   // scroll wheel delta
 
 / {
     behaviors {
         mmv {
-            acceleration-exponent = <1>;      // 1
-            time-to-max-speed-ms = <1000>;    // 40
-            delay-ms = <0>;                   // 0
+            acceleration-exponent = <1>;
+            time-to-max-speed-ms = <1000>;
+            delay-ms = <0>;
         };
 
         msc {
-            acceleration-exponent = <1>;      // 0
-            time-to-max-speed-ms = <400>;      // 500
-            delay-ms = <0>;                   //   10
+            acceleration-exponent = <1>;
+            time-to-max-speed-ms = <400>;
+            delay-ms = <0>;
         };
     };
 
+    // vertical scroll encoder behavior
     scroll_encoder: scroll_encoder {
         compatible = "zmk,behavior-sensor-rotate";
         #sensor-binding-cells = <0>;
         bindings = <&msc SCRL_DOWN>, <&msc SCRL_UP>;
+        tap-ms = <30>;
+    };
 
+    // shift + scroll encoder behavior (imitates horizontal scroll)
+    scroll_encoder_shift: scroll_encoder_shift {
+        compatible = "zmk,behavior-sensor-rotate";
+        #sensor-binding-cells = <0>;
+        bindings = <LS(&msc SCRL_DOWN)>, <LS(&msc SCRL_UP)>;
         tap-ms = <30>;
     };
 
     keymap {
         compatible = "zmk,keymap";
 
+        // TYPE layer: volume knob
         layer_0 {
             bindings = <
 &kp ESC           &kp N1        &kp N2        &kp N3  &kp N4   &kp N5       &kp UP_ARROW     &kp N6     &kp N7         &kp N8     &kp N9    &kp N0    &kp MINUS
@@ -61,6 +68,7 @@
             display-name = "TYPE";
         };
 
+        // FUNC layer: shift + scroll (horizontal emulation)
         layer_1 {
             bindings = <
 &kp F1           &kp F2          &kp F3           &kp F4           &kp F5           &kp F6             &mmv MOVE_UP     &kp F7           &kp F8           &kp F9           &kp F10          &kp F11           &kp F12
@@ -71,9 +79,10 @@
             >;
 
             display-name = "FUNC";
-            sensor-bindings = <&inc_dec_kp LS(C_AC_SCROLL_UP) LS(C_AC_SCROLL_DOWN)>;
+            sensor-bindings = <&scroll_encoder_shift>;
         };
 
+        // SYST layer: vertical scroll
         layer_2 {
             bindings = <
 &trans  &bt BT_SEL 0  &bt BT_SEL 1    &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4    &trans  &trans  &trans       &trans      &trans     &trans  &trans
@@ -83,7 +92,7 @@
 &trans  &trans        &trans          &trans        &trans        &trans          &trans  &trans  &trans       &trans      &trans     &trans
             >;
 
-            sensor-bindings = <&inc_dec_kp C_AC_SCROLL_UP C_AC_SCROLL_DOWN>;
+            sensor-bindings = <&scroll_encoder>;
             label = "SYST";
         };
     };
