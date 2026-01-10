@@ -71,7 +71,7 @@
             >;
 
             display-name = "FUNC";
-            sensor-bindings = <&inc_dec_kp LS(K_SCROLL_DOWN) LS(K_SCROLL_UP)>;
+            sensor-bindings = <&inc_dec_kp LS(C_AC_SCROLL_UP) LS(C_AC_SCROLL_DOWN)>;
         };
 
         layer_2 {
@@ -83,7 +83,7 @@
 &trans  &trans        &trans          &trans        &trans        &trans          &trans  &trans  &trans       &trans      &trans     &trans
             >;
 
-            sensor-bindings = <&inc_dec_kp K_SCROLL_UP K_SCROLL_DOWN>;
+            sensor-bindings = <&inc_dec_kp C_AC_SCROLL_UP C_AC_SCROLL_DOWN>;
             label = "SYST";
         };
     };
