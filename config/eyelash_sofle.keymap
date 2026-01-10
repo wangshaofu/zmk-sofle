@@ -2,7 +2,7 @@
 
 /* DEFINES MUST BE AT THE TOP */
 #define ZMK_POINTING_DEFAULT_MOVE_VAL 1200
-#define ZMK_POINTING_DEFAULT_SCRL_VAL 20   /* keep modest; encoder step size is set by MOVE_X/Y below */
+#define ZMK_POINTING_DEFAULT_SCRL_VAL 140
 
 #include <dt-bindings/zmk/pointing.h>
 
@@ -37,7 +37,7 @@
             compatible = "zmk,behavior-sensor-rotate-var";
             #sensor-binding-cells = <2>;
             bindings = <&msc>, <&msc>;
-            tap-ms = <30>;   /* short enough to avoid “sticky delay”, long enough to register */
+            tap-ms = <20>;
         };
     };
 
