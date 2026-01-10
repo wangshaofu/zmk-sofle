@@ -35,7 +35,7 @@
         };
     };
 
-    // vertical scroll encoder behavior
+    // vertical scroll encoder
     scroll_encoder: scroll_encoder {
         compatible = "zmk,behavior-sensor-rotate";
         #sensor-binding-cells = <0>;
@@ -43,11 +43,11 @@
         tap-ms = <30>;
     };
 
-    // shift + scroll encoder behavior (imitates horizontal scroll)
+    // shift + scroll encoder (imitates horizontal scroll)
     scroll_encoder_shift: scroll_encoder_shift {
         compatible = "zmk,behavior-sensor-rotate";
         #sensor-binding-cells = <0>;
-        bindings = <LS(&msc SCRL_DOWN)>, <LS(&msc SCRL_UP)>;
+        bindings = <&kp LSHIFT &msc SCRL_DOWN>, <&kp LSHIFT &msc SCRL_UP>;
         tap-ms = <30>;
     };
 
@@ -68,7 +68,7 @@
             display-name = "TYPE";
         };
 
-        // FUNC layer: shift + scroll (horizontal emulation)
+        // FUNC layer: shift + scroll
         layer_1 {
             bindings = <
 &kp F1           &kp F2          &kp F3           &kp F4           &kp F5           &kp F6             &mmv MOVE_UP     &kp F7           &kp F8           &kp F9           &kp F10          &kp F11           &kp F12
