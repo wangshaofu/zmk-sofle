@@ -1,91 +1,107 @@
-/* * DEFINES MUST BE AT THE TOP 
- * This ensures behaviors.dtsi uses these values when creating the mouse keys 
+/* DEFINES MUST BE AT THE TOP
+ * Must be defined before including dt-bindings/zmk/pointing.h
  */
-#define ZMK_MOUSE_DEFAULT_MOVE_VAL 1200  // pointer move speed
-#define ZMK_MOUSE_DEFAULT_SCRL_VAL 140   // scroll wheel delta (higher = faster scroll)
+#define ZMK_POINTING_DEFAULT_MOVE_VAL 1200  // default: 600
+#define ZMK_POINTING_DEFAULT_SCRL_VAL 40    // default: 10 (raise for encoder wheel)
 
-#include <dt-bindings/zmk/mouse.h>
+/* Mouse emulation defines/macros live here */
+#include <dt-bindings/zmk/pointing.h>
+
 #include <input/processors.dtsi>
 #include <behaviors.dtsi>
+
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/outputs.h>
-#include <dt-bindings/zmk/pointing.h>
 #include <dt-bindings/zmk/rgb.h>
 
-/ {
+&mmv {
+    acceleration-exponent = <1>;
+    time-to-max-speed-ms = <1000>;
+    delay-ms = <0>;
+};
+
+&msc {
+    /* For scroll wheels, acceleration often feels worse than better.
+     * ZMK docs default exponent is 0 for scroll; keep it conservative.
+     */
+    acceleration-exponent = <0>;
+    time-to-max-speed-ms = <300>;
+    delay-ms = <0>;
+};
+
+ / {
     behaviors {
-        mmv {
-            acceleration-exponent = <1>;
-            time-to-max-speed-ms = <1000>;
-            delay-ms = <0>;
+        /* Vertical scroll encoder (mouse wheel) */
+        scroll_encoder_v: scroll_encoder_v {
+            compatible = "zmk,behavior-sensor-rotate";
+            #sensor-binding-cells = <0>;
+            bindings = <&msc SCRL_DOWN>, <&msc SCRL_UP>;
+            /* Default is 5ms; encoders often need longer to register reliably */
+            tap-ms = <30>;
         };
 
-        msc {
-            acceleration-exponent = <1>;
-            time-to-max-speed-ms = <400>;
-            delay-ms = <0>;
+        /* Horizontal scroll encoder (true horizontal wheel) */
+        scroll_encoder_h: scroll_encoder_h {
+            compatible = "zmk,behavior-sensor-rotate";
+            #sensor-binding-cells = <0>;
+            bindings = <&msc SCRL_RIGHT>, <&msc SCRL_LEFT>;
+            tap-ms = <30>;
         };
-    };
 
-    // vertical scroll encoder
-    scroll_encoder: scroll_encoder {
-        compatible = "zmk,behavior-sensor-rotate";
-        #sensor-binding-cells = <0>;
-        bindings = <&msc SCRL_DOWN>, <&msc SCRL_UP>;
-        tap-ms = <40>; // Increased slightly for reliability
-    };
-
-    // shift + scroll encoder (imitates horizontal scroll)
-    scroll_encoder_shift: scroll_encoder_shift {
-        compatible = "zmk,behavior-sensor-rotate";
-        #sensor-binding-cells = <0>;
-        bindings = <&kp LSHIFT &msc SCRL_DOWN>, <&kp LSHIFT &msc SCRL_UP>;
-        tap-ms = <40>;
+        /* --- Optional: if you enabled smooth scrolling ---
+         * With CONFIG_ZMK_POINTING_SMOOTH_SCROLLING=y, SCRL_* can be too gentle.
+         * If so, swap the bindings above to MOVE_Y(...) / MOVE_X(...)
+         * Example (uncomment and use instead of SCRL_*):
+         *
+         * bindings = <&msc MOVE_Y(-200)>, <&msc MOVE_Y(200)>;   // vertical
+         * bindings = <&msc MOVE_X(200)>, <&msc MOVE_X(-200)>;   // horizontal
+         */
     };
 
     keymap {
         compatible = "zmk,keymap";
 
-        // TYPE layer: volume knob
+        /* TYPE layer: volume knob */
         layer_0 {
             bindings = <
-&kp ESC           &kp N1        &kp N2        &kp N3  &kp N4   &kp N5        &kp UP_ARROW     &kp N6       &kp N7           &kp N8       &kp N9     &kp N0     &kp MINUS
-&kp TAB           &kp Q         &kp W         &kp E   &kp R    &kp T         &kp DOWN_ARROW   &kp Y        &kp U            &kp I        &kp O      &kp P      &kp EQUAL
-&kp LEFT_SHIFT    &kp A         &kp S         &kp D   &kp F    &kp G         &kp LEFT_ARROW   &kp H        &kp J            &kp K        &kp L      &kp SEMI   &kp SQT
-&kp LEFT_CONTROL  &kp Z         &kp X         &kp C   &kp V    &kp B         &kp RIGHT_ARROW  &kp N        &kp M            &kp COMMA    &kp DOT    &kp FSLH   &kp NON_US_BACKSLASH
-&kp C_MUTE        &kp LEFT_WIN  &kp LEFT_ALT  &mo 1   &kp DEL  &kp SPACE     &kp ENTER        &kp ENTER    &kp BACKSPACE    &mo 2        &kp HOME   &kp END
+                &kp ESC           &kp N1        &kp N2        &kp N3  &kp N4   &kp N5        &kp UP_ARROW     &kp N6       &kp N7           &kp N8       &kp N9     &kp N0     &kp MINUS
+                &kp TAB           &kp Q         &kp W         &kp E   &kp R    &kp T         &kp DOWN_ARROW   &kp Y        &kp U            &kp I        &kp O      &kp P      &kp EQUAL
+                &kp LEFT_SHIFT    &kp A         &kp S         &kp D   &kp F    &kp G         &kp LEFT_ARROW   &kp H        &kp J            &kp K        &kp L      &kp SEMI   &kp SQT
+                &kp LEFT_CONTROL  &kp Z         &kp X         &kp C   &kp V    &kp B         &kp RIGHT_ARROW  &kp N        &kp M            &kp COMMA    &kp DOT    &kp FSLH   &kp NON_US_BACKSLASH
+                &kp C_MUTE        &kp LEFT_WIN  &kp LEFT_ALT  &mo 1   &kp DEL  &kp SPACE     &kp ENTER        &kp ENTER    &kp BACKSPACE    &mo 2        &kp HOME   &kp END
             >;
 
+            /* Your original encoder binding (volume) */
             sensor-bindings = <&inc_dec_kp C_VOLUME_UP C_VOL_DN>;
             display-name = "TYPE";
         };
 
-        // FUNC layer: shift + scroll
+        /* FUNC layer: horizontal scroll */
         layer_1 {
             bindings = <
-&kp F1           &kp F2          &kp F3           &kp F4           &kp F5           &kp F6              &mmv MOVE_UP      &kp F7           &kp F8           &kp F9           &kp F10           &kp F11           &kp F12
-&trans           &kp GRAVE       &mkp LCLK        &mkp MCLK        &mkp RCLK        &mkp MB4            &mmv MOVE_DOWN    &kp PG_UP        &kp END          &kp UP           &kp HOME          &kp MINUS         &kp EQUAL
-&trans           &trans          &trans           &trans           &trans           &mkp MB5            &mmv MOVE_LEFT    &kp PG_DN        &kp LEFT         &kp DOWN         &kp RIGHT         &kp LEFT_BRACKET  &kp RIGHT_BRACKET
-&rgb_ug RGB_OFF  &rgb_ug RGB_ON  &rgb_ug RGB_EFR  &rgb_ug RGB_EFF  &rgb_ug RGB_BRD  &rgb_ug RGB_BRI     &mmv MOVE_RIGHT   &rgb_ug RGB_HUD  &rgb_ug RGB_HUI  &rgb_ug RGB_SAD  &rgb_ug RGB_SAI   &rgb_ug RGB_SPD   &rgb_ug RGB_SPI
-&kp C_MUTE       &trans          &trans           &trans           &trans           &trans              &mkp LCLK         &trans           &trans           &trans           &trans            &trans
+                &kp F1           &kp F2          &kp F3           &kp F4           &kp F5           &kp F6              &mmv MOVE_UP      &kp F7           &kp F8           &kp F9           &kp F10           &kp F11           &kp F12
+                &trans           &kp GRAVE       &mkp LCLK        &mkp MCLK        &mkp RCLK        &mkp MB4            &mmv MOVE_DOWN    &kp PG_UP        &kp END          &kp UP           &kp HOME          &kp MINUS         &kp EQUAL
+                &trans           &trans          &trans           &trans           &trans           &mkp MB5            &mmv MOVE_LEFT    &kp PG_DN        &kp LEFT         &kp DOWN         &kp RIGHT         &kp LEFT_BRACKET  &kp RIGHT_BRACKET
+                &rgb_ug RGB_OFF  &rgb_ug RGB_ON  &rgb_ug RGB_EFR  &rgb_ug RGB_EFF  &rgb_ug RGB_BRD  &rgb_ug RGB_BRI     &mmv MOVE_RIGHT   &rgb_ug RGB_HUD  &rgb_ug RGB_HUI  &rgb_ug RGB_SAD  &rgb_ug RGB_SAI   &rgb_ug RGB_SPD   &rgb_ug RGB_SPI
+                &kp C_MUTE       &trans          &trans           &trans           &trans           &trans              &mkp LCLK         &trans           &trans           &trans           &trans            &trans
             >;
 
             display-name = "FUNC";
-            sensor-bindings = <&scroll_encoder_shift>;
+            sensor-bindings = <&scroll_encoder_h>;
         };
 
-        // SYST layer: vertical scroll
+        /* SYST layer: vertical scroll */
         layer_2 {
             bindings = <
-&trans  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4  &trans  &trans  &trans       &trans       &trans       &trans  &trans
-&trans  &bt BT_CLR    &bt BT_CLR_ALL &trans        &out OUT_BLE  &out OUT_USB  &trans  &trans  &trans       &trans       &trans       &trans  &trans
-&trans  &trans        &soft_off     &sys_reset    &bootloader   &trans        &trans  &trans  &bootloader  &sys_reset   &soft_off    &trans  &trans
-&trans  &trans        &trans        &trans        &trans        &trans        &trans  &trans  &trans       &trans       &trans       &trans  &trans
-&trans  &trans        &trans        &trans        &trans        &trans        &trans  &trans  &trans       &trans       &trans       &trans
+                &trans  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4  &trans  &trans  &trans       &trans       &trans       &trans  &trans
+                &trans  &bt BT_CLR    &bt BT_CLR_ALL &trans        &out OUT_BLE  &out OUT_USB  &trans  &trans  &trans       &trans       &trans       &trans  &trans
+                &trans  &trans        &soft_off     &sys_reset    &bootloader   &trans        &trans  &trans  &bootloader  &sys_reset   &soft_off    &trans  &trans
+                &trans  &trans        &trans        &trans        &trans        &trans        &trans  &trans  &trans       &trans       &trans       &trans  &trans
+                &trans  &trans        &trans        &trans        &trans        &trans        &trans  &trans  &trans       &trans       &trans       &trans
             >;
 
-            sensor-bindings = <&scroll_encoder>;
+            sensor-bindings = <&scroll_encoder_v>;
             label = "SYST";
         };
     };
