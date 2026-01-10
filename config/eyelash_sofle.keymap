@@ -1,7 +1,7 @@
 /* MUST be before including pointing.h */
 
 #define ZMK_POINTING_DEFAULT_MOVE_VAL 1200
-#define ZMK_POINTING_DEFAULT_SCRL_VAL 140
+#define ZMK_POINTING_DEFAULT_SCRL_VAL 66
 
 #include <input/processors.dtsi>
 #include <behaviors.dtsi>
